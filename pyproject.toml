@@ -1,0 +1,40 @@
+[project]
+name = "trading-strategy-sdk"
+version = "0.1.0"
+description = "Strategy-authoring toolkit for the trading platform: Strategy ABC, concrete strategies, and factory registry"
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.0",
+    "quantindicators[scipy]",
+    "trading-types",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.uv]
+package = true
+
+[tool.uv.sources]
+quantindicators = { git = "https://github.com/SakethThogarucheeti/quantindicators.git" }
+trading-types = { git = "https://github.com/SakethThogarucheeti/trading-types.git", tag = "v0.1.0" }
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tst/unit"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+fix = true
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
