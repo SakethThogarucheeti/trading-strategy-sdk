@@ -69,6 +69,14 @@ class DpoMeanReversionStrategy(IndicatorCacheMixin[tuple[DPO, ATR]], Strategy):
             ATR(store, symbol, interval),
         )
 
+    def get_params(self) -> dict[str, object]:
+        return {
+            "period": self._period,
+            "dpo_atr_mult": self._dpo_atr_mult,
+            "atr_period": self._atr_period,
+            "atr_multiplier": self._atr_multiplier,
+        }
+
     def get_state(self) -> dict[str, object]:
         return {
             f"dpo_{self._period}": round(self._last_dpo, 4)

@@ -62,6 +62,14 @@ class LinRegTrendStrategy(IndicatorCacheMixin[tuple[LinearRegressionSlope, ATR]]
             ATR(store, symbol, interval),
         )
 
+    def get_params(self) -> dict[str, object]:
+        return {
+            "period": self._period,
+            "entry_threshold": self._entry_threshold,
+            "atr_period": self._atr_period,
+            "atr_multiplier": self._atr_multiplier,
+        }
+
     def get_state(self) -> dict[str, object]:
         return {
             f"linreg_slope_{self._period}": round(self._last_slope, 4)

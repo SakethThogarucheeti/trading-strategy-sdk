@@ -75,6 +75,16 @@ class SqueezeBreakoutStrategy(IndicatorCacheMixin[tuple[SqueezeMomentum, ATR]], 
             ATR(store, symbol, interval),
         )
 
+    def get_params(self) -> dict[str, object]:
+        return {
+            "period": self._period,
+            "bb_k": self._bb_k,
+            "kc_k": self._kc_k,
+            "squeeze_lookback": self._squeeze_lookback,
+            "atr_period": self._atr_period,
+            "atr_multiplier": self._atr_multiplier,
+        }
+
     def get_state(self) -> dict[str, object]:
         return {
             "squeeze_momentum": round(self._last_momentum, 4)

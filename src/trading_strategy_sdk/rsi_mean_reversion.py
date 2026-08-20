@@ -62,6 +62,15 @@ class RsiMeanReversionStrategy(IndicatorCacheMixin[tuple[RSI, ATR]], Strategy):
             ATR(store, symbol, interval),
         )
 
+    def get_params(self) -> dict[str, object]:
+        return {
+            "rsi_period": self._rsi_period,
+            "oversold": self._oversold,
+            "overbought": self._overbought,
+            "atr_period": self._atr_period,
+            "atr_multiplier": self._atr_multiplier,
+        }
+
     def get_state(self) -> dict[str, object]:
         return {
             f"rsi_{self._rsi_period}": round(self._last_rsi, 2)
