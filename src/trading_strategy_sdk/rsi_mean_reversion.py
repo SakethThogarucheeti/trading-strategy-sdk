@@ -128,6 +128,28 @@ class RsiMeanReversionStrategy(IndicatorCacheMixin[tuple[RSI, ATR]], Strategy):
         stop_distance = self._atr_multiplier * atr
 
         if prev_rsi <= self._oversold and rsi > self._oversold:
+            return self._build_reversion_signal(
+                Side.BUY, symbol, instrument_type, prev_rsi, rsi, stop_distance, candle
+            )
+
+        if prev_rsi >= self._overbought and rsi < self._overbought:
+            return self._build_reversion_signal(
+                Side.SELL, symbol, instrument_type, prev_rsi, rsi, stop_distance, candle
+            )
+
+        return None
+
+    def _build_reversion_signal(
+        self,
+        side: Side,
+        symbol: str,
+        instrument_type: InstrumentType,
+        prev_rsi: float,
+        rsi: float,
+        stop_distance: float,
+        candle: CandleEvent,
+    ) -> Signal:
+        if side == Side.BUY:
             logger.info(
                 "RsiMeanReversion[%s]: BUY  rsi=%.1f→%.1f stop=%.4f",
                 symbol,
@@ -135,18 +157,7 @@ class RsiMeanReversionStrategy(IndicatorCacheMixin[tuple[RSI, ATR]], Strategy):
                 rsi,
                 stop_distance,
             )
-            return Signal(
-                symbol=symbol,
-                instrument_type=instrument_type,
-                side=Side.BUY,
-                strategy_id=self.id,
-                signal_type=SignalType.ENTRY,
-                stop_distance=stop_distance,
-                entry_price=candle.close,
-                timestamp=candle.timestamp,
-            )
-
-        if prev_rsi >= self._overbought and rsi < self._overbought:
+        else:
             logger.info(
                 "RsiMeanReversion[%s]: SELL rsi=%.1f→%.1f stop=%.4f",
                 symbol,
@@ -154,15 +165,13 @@ class RsiMeanReversionStrategy(IndicatorCacheMixin[tuple[RSI, ATR]], Strategy):
                 rsi,
                 stop_distance,
             )
-            return Signal(
-                symbol=symbol,
-                instrument_type=instrument_type,
-                side=Side.SELL,
-                strategy_id=self.id,
-                signal_type=SignalType.ENTRY,
-                stop_distance=stop_distance,
-                entry_price=candle.close,
-                timestamp=candle.timestamp,
-            )
-
-        return None
+        return Signal(
+            symbol=symbol,
+            instrument_type=instrument_type,
+            side=side,
+            strategy_id=self.id,
+            signal_type=SignalType.ENTRY,
+            stop_distance=stop_distance,
+            entry_price=candle.close,
+            timestamp=candle.timestamp,
+        )
