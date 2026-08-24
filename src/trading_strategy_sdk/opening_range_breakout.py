@@ -177,42 +177,52 @@ class OpeningRangeBreakoutStrategy(Strategy):
 
         if candle.close > or_high:
             self._state[symbol] = (cur_date, or_high, or_low, True)
-            logger.info(
-                "ORB[%s]: BUY  close=%.2f > OR_high=%.2f stop=%.4f",
-                symbol,
-                candle.close,
-                or_high,
-                stop_distance,
-            )
-            return Signal(
-                symbol=symbol,
-                instrument_type=instrument_type,
-                side=Side.BUY,
-                strategy_id=self.id,
-                signal_type=SignalType.ENTRY,
-                stop_distance=stop_distance,
-                entry_price=candle.close,
-                timestamp=candle.timestamp,
+            return self._build_breakout_signal(
+                Side.BUY, symbol, instrument_type, candle.close, or_high, or_low, stop_distance, candle
             )
 
         if candle.close < or_low:
             self._state[symbol] = (cur_date, or_high, or_low, True)
-            logger.info(
-                "ORB[%s]: SELL close=%.2f < OR_low=%.2f stop=%.4f",
-                symbol,
-                candle.close,
-                or_low,
-                stop_distance,
-            )
-            return Signal(
-                symbol=symbol,
-                instrument_type=instrument_type,
-                side=Side.SELL,
-                strategy_id=self.id,
-                signal_type=SignalType.ENTRY,
-                stop_distance=stop_distance,
-                entry_price=candle.close,
-                timestamp=candle.timestamp,
+            return self._build_breakout_signal(
+                Side.SELL, symbol, instrument_type, candle.close, or_high, or_low, stop_distance, candle
             )
 
         return None
+
+    def _build_breakout_signal(
+        self,
+        side: Side,
+        symbol: str,
+        instrument_type: InstrumentType,
+        close: float,
+        or_high: float,
+        or_low: float,
+        stop_distance: float,
+        candle: CandleEvent,
+    ) -> Signal:
+        if side == Side.BUY:
+            logger.info(
+                "ORB[%s]: BUY  close=%.2f > OR_high=%.2f stop=%.4f",
+                symbol,
+                close,
+                or_high,
+                stop_distance,
+            )
+        else:
+            logger.info(
+                "ORB[%s]: SELL close=%.2f < OR_low=%.2f stop=%.4f",
+                symbol,
+                close,
+                or_low,
+                stop_distance,
+            )
+        return Signal(
+            symbol=symbol,
+            instrument_type=instrument_type,
+            side=side,
+            strategy_id=self.id,
+            signal_type=SignalType.ENTRY,
+            stop_distance=stop_distance,
+            entry_price=candle.close,
+            timestamp=candle.timestamp,
+        )
