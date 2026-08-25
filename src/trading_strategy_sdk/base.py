@@ -118,6 +118,25 @@ class Strategy(ABC):
     def set_runtime_context(self, ctx: RuntimeContext) -> None:  # noqa: B027
         pass
 
+    def _entry_signal(
+        self,
+        symbol: str,
+        instrument_type: InstrumentType,
+        side: Side,
+        stop_distance: float,
+        candle: CandleEvent,
+    ) -> Signal:
+        return Signal(
+            symbol=symbol,
+            instrument_type=instrument_type,
+            side=side,
+            strategy_id=self.id,
+            signal_type=SignalType.ENTRY,
+            stop_distance=stop_distance,
+            entry_price=candle.close,
+            timestamp=candle.timestamp,
+        )
+
     def set_store(self, store: AbstractCandleStore) -> None:  # noqa: B027
         pass
 

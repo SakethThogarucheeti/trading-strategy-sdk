@@ -9,7 +9,7 @@ from quantindicators.library.atr import ATR
 from quantindicators.library.vwap import VWAP
 from quantindicators.store import AbstractCandleStore
 from trading_types.clock import SYSTEM_CLOCK, Clock
-from trading_types.schemas import CandleEvent, InstrumentType, Side, SignalType
+from trading_types.schemas import CandleEvent, InstrumentType, Side
 
 from trading_strategy_sdk.base import RuntimeContext, Signal, Strategy
 from trading_strategy_sdk.indicator_cache import IndicatorCacheMixin
@@ -176,13 +176,4 @@ class VwapReversionStrategy(IndicatorCacheMixin[tuple[VWAP, ATR]], Strategy):
                 atr,
                 stop_distance,
             )
-        return Signal(
-            symbol=symbol,
-            instrument_type=instrument_type,
-            side=side,
-            strategy_id=self.id,
-            signal_type=SignalType.ENTRY,
-            stop_distance=stop_distance,
-            entry_price=candle.close,
-            timestamp=candle.timestamp,
-        )
+        return self._entry_signal(symbol, instrument_type, side, stop_distance, candle)
