@@ -123,35 +123,44 @@ class LinRegTrendStrategy(IndicatorCacheMixin[tuple[LinearRegressionSlope, ATR]]
         stop_distance = self._atr_multiplier * atr
 
         if prev_slope <= self._entry_threshold and slope > self._entry_threshold:
+            return self._build_trend_signal(
+                Side.BUY, symbol, instrument_type, prev_slope, slope, stop_distance, candle
+            )
+
+        if prev_slope >= -self._entry_threshold and slope < -self._entry_threshold:
+            return self._build_trend_signal(
+                Side.SELL, symbol, instrument_type, prev_slope, slope, stop_distance, candle
+            )
+
+        return None
+
+    def _build_trend_signal(
+        self,
+        side: Side,
+        symbol: str,
+        instrument_type: InstrumentType,
+        prev_slope: float,
+        slope: float,
+        stop_distance: float,
+        candle: CandleEvent,
+    ) -> Signal:
+        if side == Side.BUY:
             logger.info(
                 "LinRegTrend[%s]: BUY  slope=%.4f→%.4f stop=%.4f",
                 symbol, prev_slope, slope, stop_distance,
             )
-            return Signal(
-                symbol=symbol,
-                instrument_type=instrument_type,
-                side=Side.BUY,
-                strategy_id=self.id,
-                signal_type=SignalType.ENTRY,
-                stop_distance=stop_distance,
-                entry_price=candle.close,
-                timestamp=candle.timestamp,
-            )
-
-        if prev_slope >= -self._entry_threshold and slope < -self._entry_threshold:
+        else:
             logger.info(
                 "LinRegTrend[%s]: SELL slope=%.4f→%.4f stop=%.4f",
                 symbol, prev_slope, slope, stop_distance,
             )
-            return Signal(
-                symbol=symbol,
-                instrument_type=instrument_type,
-                side=Side.SELL,
-                strategy_id=self.id,
-                signal_type=SignalType.ENTRY,
-                stop_distance=stop_distance,
-                entry_price=candle.close,
-                timestamp=candle.timestamp,
-            )
-
-        return None
+        return Signal(
+            symbol=symbol,
+            instrument_type=instrument_type,
+            side=side,
+            strategy_id=self.id,
+            signal_type=SignalType.ENTRY,
+            stop_distance=stop_distance,
+            entry_price=candle.close,
+            timestamp=candle.timestamp,
+        )
