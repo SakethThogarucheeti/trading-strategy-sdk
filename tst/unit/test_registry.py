@@ -21,10 +21,13 @@ import pytest
 from trading_types.clock import Clock
 
 from trading_strategy_sdk.base import Strategy
+from trading_strategy_sdk.dpo_mean_reversion import DpoMeanReversionStrategy
 from trading_strategy_sdk.ema_crossover import EmaCrossoverStrategy
 from trading_strategy_sdk.factory import create_strategy, get_strategy, registered_strategies
+from trading_strategy_sdk.linreg_trend import LinRegTrendStrategy
 from trading_strategy_sdk.opening_range_breakout import OpeningRangeBreakoutStrategy
 from trading_strategy_sdk.rsi_mean_reversion import RsiMeanReversionStrategy
+from trading_strategy_sdk.squeeze_breakout import SqueezeBreakoutStrategy
 from trading_strategy_sdk.vwap_reversion import VwapReversionStrategy
 
 _BUILTIN_ALIASES = [
@@ -32,6 +35,9 @@ _BUILTIN_ALIASES = [
     "rsi_mean_reversion",
     "vwap_reversion",
     "opening_range_breakout",
+    "linreg_trend",
+    "dpo_mean_reversion",
+    "squeeze_breakout",
 ]
 
 
@@ -43,6 +49,9 @@ class TestGetStrategy:
             ("rsi_mean_reversion", RsiMeanReversionStrategy),
             ("vwap_reversion", VwapReversionStrategy),
             ("opening_range_breakout", OpeningRangeBreakoutStrategy),
+            ("linreg_trend", LinRegTrendStrategy),
+            ("dpo_mean_reversion", DpoMeanReversionStrategy),
+            ("squeeze_breakout", SqueezeBreakoutStrategy),
         ],
     )
     def test_returns_correct_class(self, alias, expected_cls):
@@ -109,6 +118,11 @@ class TestIdProperty:
         [
             ("ema_crossover", EmaCrossoverStrategy),
             ("rsi_mean_reversion", RsiMeanReversionStrategy),
+            ("vwap_reversion", VwapReversionStrategy),
+            ("opening_range_breakout", OpeningRangeBreakoutStrategy),
+            ("linreg_trend", LinRegTrendStrategy),
+            ("dpo_mean_reversion", DpoMeanReversionStrategy),
+            ("squeeze_breakout", SqueezeBreakoutStrategy),
         ],
     )
     def test_id_returns_alias(self, alias, cls):
