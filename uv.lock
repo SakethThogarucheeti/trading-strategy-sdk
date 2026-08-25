@@ -270,7 +270,7 @@ dev = [
 requires-dist = [
     { name = "pydantic", specifier = ">=2.0" },
     { name = "quantindicators", extras = ["scipy"], git = "https://github.com/SakethThogarucheeti/quantindicators.git?tag=v0.1.1" },
-    { name = "trading-types", git = "https://github.com/SakethThogarucheeti/trading-types.git?tag=v0.1.0" },
+    { name = "trading-types", git = "https://github.com/SakethThogarucheeti/trading-types.git?tag=v0.1.1" },
 ]
 
 [package.metadata.requires-dev]
@@ -282,7 +282,7 @@ dev = [
 [[package]]
 name = "trading-types"
 version = "0.1.0"
-source = { git = "https://github.com/SakethThogarucheeti/trading-types.git?tag=v0.1.0#2abbb2b185888b02c5686e8d558673a0b50d7236" }
+source = { git = "https://github.com/SakethThogarucheeti/trading-types.git?tag=v0.1.1#266d3ef21a4dd91c3208b24b32c7d7e5f1e2a699" }
 dependencies = [
     { name = "pydantic" },
     { name = "tzdata" },
