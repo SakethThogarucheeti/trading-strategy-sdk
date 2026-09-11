@@ -13,6 +13,7 @@ from trading_types.clock import SYSTEM_CLOCK, Clock
 from trading_types.schemas import CandleEvent, InstrumentType, Side
 
 from trading_strategy_sdk.base import RuntimeContext, Signal, Strategy
+from trading_strategy_sdk.indicator_cache import IndicatorCacheMixin
 
 
 class _OrbEntry(TypedDict):
@@ -34,7 +35,7 @@ logger = logging.getLogger(__name__)
 _SESSION_OPEN = time(9, 15)
 
 
-class OpeningRangeBreakoutStrategy(Strategy):
+class OpeningRangeBreakoutStrategy(IndicatorCacheMixin[tuple[ATR]], Strategy):
     """
     Trade the first breakout beyond the session's opening range.
 
@@ -63,9 +64,7 @@ class OpeningRangeBreakoutStrategy(Strategy):
         self._clock: Clock = SYSTEM_CLOCK
         if runtime_context is not None:
             self.set_runtime_context(runtime_context)
-        self._store: AbstractCandleStore | None = None
-        # indicator cache: symbol → atr
-        self._inds: dict[str, ATR] = {}
+        self._init_indicator_cache()
         # (session_date, or_high, or_low, signal_taken)
         self._state: dict[str, tuple[object, float, float, bool]] = {}
         # last computed values for dashboard state
@@ -76,14 +75,10 @@ class OpeningRangeBreakoutStrategy(Strategy):
     def set_runtime_context(self, ctx: RuntimeContext) -> None:
         self._clock = ctx.clock
 
-    def set_store(self, store: AbstractCandleStore) -> None:
-        self._store = store
-
-    def _get_atr(self, symbol: str, interval: str) -> ATR:
-        if symbol not in self._inds:
-            assert self._store is not None, "set_store() must be called before on_candle()"
-            self._inds[symbol] = ATR(self._store, symbol, interval)
-        return self._inds[symbol]
+    def _build_indicators(
+        self, store: AbstractCandleStore, symbol: str, interval: str
+    ) -> tuple[ATR]:
+        return (ATR(store, symbol, interval),)
 
     def get_state(self) -> dict[str, object]:
         return {
@@ -140,7 +135,7 @@ class OpeningRangeBreakoutStrategy(Strategy):
         instrument_type: InstrumentType,
         candle: CandleEvent,
     ) -> Signal | None:
-        atr_ind = self._get_atr(symbol, candle.interval)
+        (atr_ind,) = self._get_inds(symbol, candle.interval)
         atr = await atr_ind.compute(ATR.Parameters(period=self._atr_period))
         self._last_atr = atr
         self.chart("oscillators", f"atr_{self._atr_period}", atr, candle.timestamp)
