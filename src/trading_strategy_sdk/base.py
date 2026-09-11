@@ -84,6 +84,12 @@ class Strategy(ABC):
 
     ``on_candle`` MUST be a pure function — no broker calls, no DB writes,
     no network I/O. Side effects belong in the registry layer.
+
+    ``set_store()`` is override-optional and a no-op by default (see its own
+    docstring) -- subclasses that don't mix in ``IndicatorCacheMixin`` (or
+    otherwise implement ``set_store()`` themselves to assign ``self._store``)
+    will have ``AlgoInstance.is_ready()`` always return ``False``, since it
+    checks ``self.strategy._store is not None``.
     """
 
     alias: ClassVar[str]
@@ -138,6 +144,14 @@ class Strategy(ABC):
         )
 
     def set_store(self, store: AbstractCandleStore) -> None:  # noqa: B027
+        """Override-optional; a no-op by default.
+
+        If you don't mix in ``IndicatorCacheMixin`` (which overrides this to
+        assign ``self._store = store``), implement this yourself and assign
+        ``self._store`` -- otherwise ``AlgoInstance.is_ready()`` will always
+        return ``False`` for this strategy, since it checks
+        ``self.strategy._store is not None``.
+        """
         pass
 
     def warmup(self, symbol: str, candles: list[CandleEvent]) -> None:  # noqa: B027
