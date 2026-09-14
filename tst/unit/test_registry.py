@@ -111,6 +111,32 @@ class TestRegisteredStrategies:
         reg["injected"] = object()  # type: ignore[assignment]
         assert "injected" not in registered_strategies()
 
+    @pytest.mark.parametrize(
+        "alias,expected_cls",
+        [
+            ("ema_crossover", EmaCrossoverStrategy),
+            ("rsi_mean_reversion", RsiMeanReversionStrategy),
+            ("vwap_reversion", VwapReversionStrategy),
+            ("opening_range_breakout", OpeningRangeBreakoutStrategy),
+            ("linreg_trend", LinRegTrendStrategy),
+            ("dpo_mean_reversion", DpoMeanReversionStrategy),
+            ("squeeze_breakout", SqueezeBreakoutStrategy),
+        ],
+    )
+    def test_registry_key_matches_class_alias(self, alias, expected_cls):
+        """Guards against key/alias drift for all 7 built-ins (trading-strategy-sdk#7) --
+        each class self-registers under its own .alias via __init_subclass__, so this
+        would only fail if that registration were ever bypassed or overwritten."""
+        reg = registered_strategies()
+        assert reg[alias] is expected_cls
+        assert reg[alias].alias == alias
+
+    def test_duplicate_alias_raises_on_class_definition(self):
+        with pytest.raises(ValueError, match="Duplicate Strategy alias"):
+
+            class _DuplicateEmaCrossover(EmaCrossoverStrategy):
+                alias = "ema_crossover"
+
 
 class TestIdProperty:
     @pytest.mark.parametrize(
