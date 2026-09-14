@@ -15,6 +15,8 @@ from trading_types.schemas import CandleEvent, InstrumentType, Side, SignalType
 
 _log = logging.getLogger(__name__)
 
+_REGISTRY: dict[str, type[Strategy]] = {}
+
 
 @dataclass
 class RuntimeContext:
@@ -103,6 +105,12 @@ class Strategy(ABC):
             return
         if not isinstance(alias, str) or not alias:
             raise TypeError(f"{cls.__name__}.alias must be a non-empty string")
+        if alias in _REGISTRY and _REGISTRY[alias] is not cls:
+            raise ValueError(
+                f"Duplicate Strategy alias {alias!r}: already registered by "
+                f"{_REGISTRY[alias].__qualname__}, cannot also register {cls.__qualname__}."
+            )
+        _REGISTRY[alias] = cls
 
     def set_chart_callback(self, cb: Callable[[str, str, float, datetime], None]) -> None:
         self._chart_cb = cb

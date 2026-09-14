@@ -30,4 +30,4 @@ uv run pytest
 
 ## Adding a new strategy
 
-Subclass `Strategy`, set a unique `alias`, implement `on_candle()`, and register it in `factory.py`'s `_STRATEGIES` dict.
+Subclass `Strategy`, set a unique `alias`, implement `on_candle()`, and import the module in `factory.py` (the import is what triggers self-registration into the strategy registry via `__init_subclass__` — a class that's never imported is never registered).
